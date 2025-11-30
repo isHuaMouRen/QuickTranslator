@@ -4,9 +4,29 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuickTranslator"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="快速翻译器" Height="450" Width="800" WindowStartupLocation="CenterScreen" ui:WindowHelper.UseModernWindowStyle="True">
     <Grid>
+        <Grid x:Name="grid_Main">
+            <StackPanel Margin="10,10,10,10">
+                <!--语言-->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="源语言:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="comboBox_SourceLang" BorderBrush="#33000000" Margin="0,0,20,0" SelectionChanged="comboBox_SourceLang_SelectionChanged"/>
 
+                    <TextBlock Text="目标语言:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox x:Name="comboBox_TargetLang" BorderBrush="#33000000" SelectionChanged="comboBox_SourceLang_SelectionChanged"/>
+                </StackPanel>
+               
+                
+                
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="grid_Loading" Visibility="Hidden">
+            <ui:ProgressRing IsActive="True" Width="50" Height="50"/>
+            <TextBlock Text="加载中..." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,80,0,0"/>
+        </Grid>
     </Grid>
 </Window>
