@@ -19,7 +19,7 @@ namespace ExecuteShell
             {
                 string executePath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}";
                 string binPath = $"{Path.Combine(executePath, "bin")}";
-                string exePath = $"{Path.Combine(binPath, "PvzLauncherRemake.exe")}";
+                string exePath = $"{Path.Combine(binPath, "QuickTranslator.exe")}";
 
                 Process.Start(new ProcessStartInfo
                 {
