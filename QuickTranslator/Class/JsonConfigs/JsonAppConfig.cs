@@ -7,10 +7,10 @@ namespace QuickTranslator.Class.JsonConfigs
         public class Index
         {
             [JsonProperty("source_language")]
-            public string SourceLanguage { get; set; }
+            public string SourceLanguage { get; set; } = "auto";
 
             [JsonProperty("target_language")]
-            public string TargetLanguage { get; set; }
+            public string TargetLanguage { get; set; } = "auto";
         }
     }
 }
