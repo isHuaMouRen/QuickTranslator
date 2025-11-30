@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="QuickTranslator/QuickTranslator.csproj" />
+  <Configurations>
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="ExecuteShell/ExecuteShell.csproj" Id="fb138c14-b208-4b63-9034-88d40a01f710" />
+  <Project Path="QuickTranslator/QuickTranslator.csproj" Id="29392d8d-8ee6-4ae0-b9f1-b0ee7d25b938" />
 </Solution>
