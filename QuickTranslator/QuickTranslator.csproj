@@ -18,6 +18,7 @@
     <PackageReference Include="HuaZi.Library" Version="2025.11.27.1" />
     <PackageReference Include="ModernWpfUI" Version="0.9.7-preview.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Notifications.Wpf" Version="0.1.1" />
   </ItemGroup>
 
 </Project>
