@@ -1,4 +1,5 @@
 ﻿using HuaZi.Library.Json;
+using static QuickTranslator.Class.AppLogger;
 using QuickTranslator.Class;
 using QuickTranslator.Class.JsonConfigs;
 using System.Net.Http;
@@ -13,13 +14,17 @@ namespace QuickTranslator.Utils
         public static async Task<JsonApi.Index> GetTranslate(string originText,string sourceLanguage="auto",string targetLanguage="auto")
         {
             string url = $"{AppInfo.ApiUrl}?text={originText}&from={sourceLanguage}&to={targetLanguage}";
-            return Json.ReadJson<JsonApi.Index>(await Client.GetStringAsync(url));
+            string result = await Client.GetStringAsync(url);
+            logger.Info($"[TranslateManager] 获得翻译: {result}");
+            return Json.ReadJson<JsonApi.Index>(result);
         }
 
         public static async Task<JsonLanguageList.Index> GetLanguageList()
         {
             string url = $"{AppInfo.ApiUrl}/langs";
-            return Json.ReadJson<JsonLanguageList.Index>(await Client.GetStringAsync(url));
+            string result = await Client.GetStringAsync(url);
+            logger.Info($"[TranslateManager] 获得翻译列表: {result}");
+            return Json.ReadJson<JsonLanguageList.Index>(result);
         }
     }
 }

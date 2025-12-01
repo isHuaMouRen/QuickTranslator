@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using HuaZi.Library.InputManager;
 using static QuickTranslator.Class.AppLogger;
 using Notifications.Wpf;
+using Newtonsoft.Json;
 
 namespace QuickTranslator
 {
@@ -50,16 +51,24 @@ namespace QuickTranslator
             {
                 StartLoad();
 
+                logger.Info($"[初始化] 程序开始初始化");
+
                 #region 配置文件
                 //初始化配置
                 if (!File.Exists(AppInfo.ConfigPath))
+                {
+                    logger.Warn($"[初始化] 检测不到配置文件，即将创建...");
                     Json.WriteJson(AppInfo.ConfigPath, new JsonAppConfig.Index());
+                }
 
                 //读配置
                 AppInfo.Config = Json.ReadJson<JsonAppConfig.Index>(AppInfo.ConfigPath);
+                logger.Info($"[初始化] 读取配置: {JsonConvert.SerializeObject(AppInfo.Config)}");
+
                 #endregion
 
                 #region 加载语言列表
+                logger.Info($"[初始化] 开始加载语言列表");
                 //加载语言列表
                 JsonLanguageList.Index languageList = await TranslateManager.GetLanguageList();
                 comboBox_SourceLang.Items.Clear(); comboBox_TargetLang.Items.Clear();
@@ -89,6 +98,7 @@ namespace QuickTranslator
                         comboBox_TargetLang.SelectedItem = item;
                 #endregion
 
+                logger.Info($"[初始化] 初始化完毕");
                 isInitComplete = true;
             }
             catch (Exception ex)
@@ -117,9 +127,12 @@ namespace QuickTranslator
 
         private async void HookKeyDown(object? sender, WpfKeyboardHookEventArgs e)
         {
-            if (e.Key != Key.Space || !isInitComplete) return;
+            if (e.Key != KeyInterop.KeyFromVirtualKey(AppInfo.Config.Key) || !isInitComplete) return;
+
+            logger.Info($"[KeyboardHook] 侦测到 {KeyInterop.KeyFromVirtualKey(AppInfo.Config.Key).ToString()} 按下");
 
             long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            logger.Info($"[KeyboardHook] 现在时间戳: (UnixMs){now}");
 
             if (latestSpacePress == null)
             {
@@ -129,11 +142,12 @@ namespace QuickTranslator
             }
 
             long delta = now - latestSpacePress.Value;
+            logger.Info($"[KeyboardHook] 与上次间隔: (UnixMs){delta}");
 
-            if (delta < 800)
+            if (delta < AppInfo.Config.PressDelta)
             {
                 spacePressCount++;
-                logger.Info($"连击次数: {spacePressCount}, 间隔: {delta}ms");
+                logger.Info($"[KeyboardHook] 连击次数: {spacePressCount}");
             }
             else
             {
@@ -142,8 +156,9 @@ namespace QuickTranslator
 
             latestSpacePress = now;
 
-            if (spacePressCount == 3)
+            if (spacePressCount == AppInfo.Config.PressCount)
             {
+                logger.Info($"[KeyboardHook] 连击次数达到 {AppInfo.Config.PressCount} , 开始翻译...");
                 spacePressCount = 0;
 
                 await TranslateCurrentInputFieldAsync();
@@ -154,8 +169,6 @@ namespace QuickTranslator
         {
             try
             {
-                
-
                 await Task.Delay(50);
 
                 void SendCtrlKey(byte key)
@@ -176,10 +189,16 @@ namespace QuickTranslator
                 if (string.IsNullOrWhiteSpace(originalText))
                 {
                     logger.Warn("未获取到文本，可能是非文本输入框");
+                    new NotificationManager().Show(new NotificationContent
+                    {
+                        Title = "无法翻译",
+                        Message = "未获取到任何文本，请确保当前处于输入框内",
+                        Type = NotificationType.Warning
+                    });
                     return;
                 }
 
-                logger.Info($"原文: {originalText}");
+                logger.Info($"[Translator] 原文: {originalText}");
 
                 new NotificationManager().Show(new NotificationContent
                 {
@@ -192,11 +211,17 @@ namespace QuickTranslator
                 if (result?.Data?.Target?.Text == null)
                 {
                     logger.Error("翻译失败");
+                    new NotificationManager().Show(new NotificationContent
+                    {
+                        Title = "翻译失败",
+                        Message = $"无法翻译目标文本",
+                        Type = NotificationType.Error
+                    });
                     return;
                 }
 
                 string translated = result.Data.Target.Text;
-                logger.Info($"译文: {translated}");
+                logger.Info($"[Translator] 译文: {translated}");
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -204,6 +229,8 @@ namespace QuickTranslator
                     Task.Delay(30).Wait();
                     SendCtrlKey(0x56); // Ctrl+V
                 });
+
+                logger.Info($"[Translator] 翻译完毕");
             }
             catch (Exception ex)
             {
